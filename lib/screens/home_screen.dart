@@ -1,9 +1,11 @@
+import 'package:chatbox/helpers.dart';
 import 'package:chatbox/pages/calls_page.dart';
 import 'package:chatbox/pages/contact_page.dart';
 import 'package:chatbox/pages/message_page.dart';
 import 'package:chatbox/pages/notification_page.dart';
 import 'package:chatbox/theme.dart';
 import 'package:chatbox/widgets/avatar.dart';
+import 'package:chatbox/widgets/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +45,23 @@ class HomeScreen extends StatelessWidget {
                     const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               );
             }),
-        //actions: [Avatar.small(url: ,)],
+        leadingWidth: 54,
+        leading: Align(
+          alignment: Alignment.centerRight,
+          child: IconBackground(
+              icon: Icons.search,
+              onTap: () {
+                print("search");
+              }),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 24.0),
+            child: Avatar.small(
+              url: Helpers.randomPictureUrl(),
+            ),
+          )
+        ],
       ),
       body: ValueListenableBuilder(
           valueListenable: pageIndex,
