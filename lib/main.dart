@@ -1,5 +1,4 @@
 import 'package:chatbox/screens/screens.dart';
-//import 'package:chatbox/theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
