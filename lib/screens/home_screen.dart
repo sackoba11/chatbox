@@ -3,6 +3,9 @@ import 'package:chatbox/pages/calls_page.dart';
 import 'package:chatbox/pages/contact_page.dart';
 import 'package:chatbox/pages/message_page.dart';
 import 'package:chatbox/pages/notification_page.dart';
+import 'package:chatbox/pages/profil_page.dart';
+import 'package:chatbox/screens/select_contact.dart';
+import 'package:chatbox/screens/users_screen.dart';
 import 'package:chatbox/theme.dart';
 import 'package:chatbox/widgets/glowinf_action_button.dart';
 import 'package:chatbox/widgets/widgets.dart';
@@ -56,11 +59,19 @@ class HomeScreen extends StatelessWidget {
               }),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: Avatar.small(
-              url: Helpers.randomPictureUrl(),
+          InkWell(
+            child: const Padding(
+              padding: EdgeInsets.only(right: 24.0),
+              child: CircleAvatar(
+                radius: 25,
+                backgroundImage: AssetImage("images/1.jpg"),
+              ),
             ),
+            onTap: () {
+              var route = MaterialPageRoute(
+                  builder: (BuildContext context) => const ProfilePage());
+              Navigator.of(context).push(route);
+            },
           )
         ],
         toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
@@ -125,12 +136,15 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
                     icon: CupertinoIcons.bell_solid,
                     ontap: handleItemSelected),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
                   child: GlowingActionButton(
                       color: AppColors.secondary,
                       icon: CupertinoIcons.add,
                       onPressed: (() {
-                        print("To do on new message");
+                        var route = MaterialPageRoute(
+                            builder: (context) => const SelectContact());
+
+                        Navigator.of(context).push(route);
                       })),
                 ),
                 _NavigationBarItem(

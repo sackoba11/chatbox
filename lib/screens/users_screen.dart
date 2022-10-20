@@ -1,31 +1,38 @@
 import 'package:chatbox/helpers.dart';
-import 'package:chatbox/models/message_data.dart';
-import 'package:chatbox/pages/profile_user.dart';
-import 'package:chatbox/widgets/avatar.dart';
-import 'package:flutter/material.dart';
+import 'package:chatbox/models/models.dart';
+import 'package:chatbox/screens/newchat.dart';
+import 'package:chatbox/widgets/widgets.dart';
 import 'package:faker/faker.dart';
+import 'package:flutter/material.dart';
 import 'package:jiffy/jiffy.dart';
 
-class ContactPage extends StatelessWidget {
-  const ContactPage({super.key});
+class UserScreen extends StatelessWidget {
+  const UserScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [SliverList(delegate: SliverChildBuilderDelegate(_delegate))],
+    return Scaffold(
+      body: SingleChildScrollView(child: user(10)),
     );
   }
+}
 
-  Widget _delegate(BuildContext context, int index) {
-    final date = Helpers.randomDate();
-    return MessagesTitle(
+Widget user(int index) {
+  final date = Helpers.randomDate();
+  List<Widget> page = [];
+  for (int i = 0; i < index; i++) {
+    var contact = MessagesTitle(
         messagedata: MessageData(
             senderName: faker.person.name(),
             message: faker.lorem.sentence(),
             messageDate: date,
             dateMessage: Jiffy(date).fromNow(),
             profilePicture: Helpers.randomPictureUrl()));
+    page.add(contact);
   }
+  return Column(children: page);
 }
 
 class MessagesTitle extends StatelessWidget {
@@ -37,9 +44,7 @@ class MessagesTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (() {
-        var route =
-            MaterialPageRoute(builder: (context) => const ProfileUser());
-        Navigator.of(context).push(route);
+        Navigator.of(context).push(NewChat.route(messagedata));
       }),
       child: Container(
         height: 100,
@@ -52,7 +57,7 @@ class MessagesTitle extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Avatar.medium(
+                child: Avatar.large(
                   url: messagedata.profilePicture,
                 ),
               ),
