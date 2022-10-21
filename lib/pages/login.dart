@@ -24,10 +24,11 @@ class _Login1State extends State<Login1> {
       elevation: 0,
       child: SingleChildScrollView(
         child: Container(
+          height: MediaQuery.of(context).size.height,
           child: Column(
             children: <Widget>[
               Container(
-                height: 350,
+                height: MediaQuery.of(context).size.height / 2.5,
                 decoration: const BoxDecoration(
                     image: DecorationImage(
                         image: AssetImage('images/images/background.png'),
@@ -111,7 +112,7 @@ class _Login1State extends State<Login1> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: const [
                               BoxShadow(
-                                  //color: Color.fromRGBO(143, 148, 251, .2),
+                                  color: Color.fromRGBO(143, 148, 251, .2),
                                   blurRadius: 20.0,
                                   offset: Offset(0, 10))
                             ]),

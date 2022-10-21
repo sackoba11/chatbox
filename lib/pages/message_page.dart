@@ -92,7 +92,7 @@ class MessagesTitle extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const SizedBox(
-                      height: 8,
+                      height: 10,
                     ),
                     Text(
                       messagedata.dateMessage.toUpperCase(),

@@ -1,5 +1,5 @@
 import 'package:chatbox/animation/FadeAnimation.dart';
-import 'package:chatbox/pages/forgotpass.dart';
+import 'package:chatbox/pages/login.dart';
 import 'package:chatbox/screens/screens.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +21,7 @@ class _SignUpState extends State<SignUp> {
       elevation: 0,
       child: SingleChildScrollView(
         child: Container(
+          height: MediaQuery.of(context).size.height,
           child: Column(
             children: <Widget>[
               Container(
@@ -109,7 +110,7 @@ class _SignUpState extends State<SignUp> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: const [
                               BoxShadow(
-                                  //color: Color.fromRGBO(143, 148, 251, .2),
+                                  color: Color.fromRGBO(143, 148, 251, .2),
                                   blurRadius: 20.0,
                                   offset: Offset(0, 10))
                             ]),
@@ -200,7 +201,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     FadeAnimation(
                       2.5,
@@ -208,11 +209,11 @@ class _SignUpState extends State<SignUp> {
                         onTap: (() {
                           var route = MaterialPageRoute(
                               builder: (BuildContext context) =>
-                                  const ForgotPass());
+                                  const Login1());
                           Navigator.of(context).push(route);
                         }),
                         child: const Text(
-                          "Forgot Password?",
+                          "Do you have an account? Connect",
                           style: TextStyle(
                               color: Color.fromRGBO(143, 148, 251, 1)),
                         ),

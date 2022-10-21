@@ -114,7 +114,7 @@ class _ForgotPassState extends State<ForgotPass> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: const [
                               BoxShadow(
-                                  //color: Color.fromRGBO(143, 148, 251, .2),
+                                  color: Color.fromRGBO(143, 148, 251, .2),
                                   blurRadius: 20.0,
                                   offset: Offset(0, 10))
                             ]),
