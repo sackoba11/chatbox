@@ -20,7 +20,7 @@ class _ForgotPassState extends State<ForgotPass> {
       elevation: 0,
       color: (brightness == Brightness.light) ? Colors.transparent : null,
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: Column(

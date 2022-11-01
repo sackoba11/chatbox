@@ -67,7 +67,7 @@ class NewChat extends StatelessWidget {
 }
 
 class _DemoMessageList extends StatelessWidget {
-  const _DemoMessageList({super.key});
+  const _DemoMessageList();
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +95,7 @@ class _DemoMessageList extends StatelessWidget {
 }
 
 class _MessageTitle extends StatelessWidget {
-  const _MessageTitle(
-      {super.key, required this.message, required this.messageDate});
+  const _MessageTitle({required this.message, required this.messageDate});
 
   final String message;
   final String messageDate;
@@ -142,8 +141,7 @@ class _MessageTitle extends StatelessWidget {
 }
 
 class _MessageOwnTitle extends StatelessWidget {
-  const _MessageOwnTitle(
-      {super.key, required this.message, required this.messageDate});
+  const _MessageOwnTitle({required this.message, required this.messageDate});
 
   final String message;
   final String messageDate;
@@ -195,7 +193,7 @@ class _MessageOwnTitle extends StatelessWidget {
 }
 
 class _DataLabel extends StatelessWidget {
-  const _DataLabel({super.key, required this.label});
+  const _DataLabel({required this.label});
 
   final String label;
   @override
@@ -224,7 +222,7 @@ class _DataLabel extends StatelessWidget {
 }
 
 class _AppBarTitle extends StatelessWidget {
-  const _AppBarTitle({super.key, required this.messageData});
+  const _AppBarTitle({required this.messageData});
 
   final MessageData messageData;
 
@@ -266,7 +264,7 @@ class _AppBarTitle extends StatelessWidget {
 }
 
 class _ActionBar extends StatelessWidget {
-  const _ActionBar({super.key});
+  const _ActionBar();
 
   @override
   Widget build(BuildContext context) {
@@ -306,9 +304,7 @@ class _ActionBar extends StatelessWidget {
               child: GlowingActionButton(
                 color: AppColors.accent,
                 icon: Icons.send_rounded,
-                onPressed: (() {
-                  print("you send a message");
-                }),
+                onPressed: (() {}),
               ),
             )
           ],

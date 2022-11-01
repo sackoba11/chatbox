@@ -37,9 +37,9 @@ class MessagesTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (() {
-        var route =
-            MaterialPageRoute(builder: (context) => const ProfileUser());
-        Navigator.of(context).push(route);
+        // var route =
+        //     MaterialPageRoute(builder: (context) => const ProfileUser());
+        // Navigator.of(context).push(route);
       }),
       child: Container(
         height: 100,

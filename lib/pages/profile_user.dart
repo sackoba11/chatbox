@@ -1,3 +1,6 @@
+import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfileUser extends StatefulWidget {
@@ -10,9 +13,33 @@ class ProfileUser extends StatefulWidget {
 class _ProfileUserState extends State<ProfileUser> {
   bool val = false;
 
+  late MyUser me;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      _getUser();
+    });
+  }
+
   void change(bool index) {
     setState(() {
       val = index;
+    });
+  }
+
+  _getUser() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    FirebaseHelper().getUser(user!.uid).then((me) {
+      setState(() {
+        this.me = me;
+        print("me----${me.uid}");
+        print("me----${me.nom}");
+        print("me----${me.prenoms}");
+        print("me----${me.initiales}");
+      });
     });
   }
 
@@ -43,9 +70,11 @@ class _ProfileUserState extends State<ProfileUser> {
                     ),
                   ],
                 ),
-                const Text(
-                  "Sacko Allou-Badra",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                TextField(
+                  decoration: InputDecoration(hintText: me.nom),
+                ),
+                TextField(
+                  decoration: InputDecoration(hintText: me.prenoms),
                 ),
                 const Text(
                   "+22555324247",

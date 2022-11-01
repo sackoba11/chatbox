@@ -1,18 +1,20 @@
-import 'package:chatbox/pages/login.dart';
+import 'package:chatbox/pages/profil_page.dart';
+import 'package:chatbox/pages/welcome.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
-    //required this.client
   });
-
-  //final StreamChatClient client;
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +28,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  final User? user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user == null) {
+        print('Utilisateur courant est déconnecté !');
+      } else {
+        print('Utilisateur est connecté sur main!');
+        print("voici son uid: ${user.uid}");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +79,6 @@ class SplashScreen extends StatelessWidget {
         ),
         splashTransition: SplashTransition.rotationTransition,
         backgroundColor: Colors.grey.shade300,
-        nextScreen: const Login1());
+        nextScreen: const Welcome());
   }
 }

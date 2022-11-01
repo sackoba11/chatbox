@@ -15,7 +15,7 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(child: _Stories()),
+        const SliverToBoxAdapter(child: _Stories()),
         SliverList(delegate: SliverChildBuilderDelegate(_delegate))
       ],
     );
@@ -130,7 +130,7 @@ class MessagesTitle extends StatelessWidget {
 }
 
 class _Stories extends StatelessWidget {
-  const _Stories({super.key});
+  const _Stories();
 
   @override
   Widget build(BuildContext context) {

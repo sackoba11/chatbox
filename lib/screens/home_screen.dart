@@ -1,20 +1,27 @@
-import 'package:chatbox/helpers.dart';
+import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/customimage.dart';
+import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/calls_page.dart';
 import 'package:chatbox/pages/contact_page.dart';
 import 'package:chatbox/pages/message_page.dart';
 import 'package:chatbox/pages/notification_page.dart';
 import 'package:chatbox/pages/profil_page.dart';
 import 'package:chatbox/screens/select_contact.dart';
-import 'package:chatbox/screens/users_screen.dart';
 import 'package:chatbox/theme.dart';
 import 'package:chatbox/widgets/glowinf_action_button.dart';
 import 'package:chatbox/widgets/widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final ValueNotifier<int> pageIndex = ValueNotifier(0);
   final ValueNotifier<String> title = ValueNotifier("Messages");
 
@@ -30,6 +37,15 @@ class HomeScreen extends StatelessWidget {
   void onNavigationItemSelected(index) {
     title.value = pageTitles[index];
     pageIndex.value = index;
+  }
+
+  final User? user = FirebaseAuth.instance.currentUser;
+  late MyUser me;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUser();
   }
 
   @override
@@ -52,24 +68,21 @@ class HomeScreen extends StatelessWidget {
         leadingWidth: 54,
         leading: Align(
           alignment: Alignment.centerRight,
-          child: IconBackground(
-              icon: Icons.search,
-              onTap: () {
-                print("search");
-              }),
+          child: IconBackground(icon: Icons.search, onTap: () {}),
         ),
         actions: [
-          InkWell(
-            child: const Padding(
-              padding: EdgeInsets.only(right: 24.0),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage("images/1.jpg"),
+          GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 25.0),
+              child: CustomImage(
+                imageUrl: me.imageUrl,
+                initiales: me.initiales.toUpperCase(),
+                radius: MediaQuery.of(context).size.width / 17,
               ),
             ),
             onTap: () {
               var route = MaterialPageRoute(
-                  builder: (BuildContext context) => const ProfilePage());
+                  builder: (BuildContext context) => const ProfilController());
               Navigator.of(context).push(route);
             },
           )
@@ -86,6 +99,14 @@ class HomeScreen extends StatelessWidget {
         onItemSelected: onNavigationItemSelected,
       ),
     );
+  }
+
+  _getUser() {
+    FirebaseHelper().getUser(user!.uid).then((me) {
+      setState(() {
+        this.me = me;
+      });
+    });
   }
 }
 
@@ -168,8 +189,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
 
 class _NavigationBarItem extends StatelessWidget {
   const _NavigationBarItem(
-      {super.key,
-      this.isSelected = false,
+      {this.isSelected = false,
       required this.ontap,
       required this.index,
       required this.label,

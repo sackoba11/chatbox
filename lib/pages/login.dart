@@ -1,7 +1,14 @@
 import 'package:chatbox/animation/FadeAnimation.dart';
+import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/forgotpass.dart';
+import 'package:chatbox/pages/profil_page.dart';
 import 'package:chatbox/pages/signup.dart';
-import 'package:chatbox/screens/screens.dart';
+import 'package:chatbox/pages/welcome.dart';
+import 'package:chatbox/screens/home_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class Login1 extends StatefulWidget {
@@ -12,6 +19,19 @@ class Login1 extends StatefulWidget {
 }
 
 class _Login1State extends State<Login1> {
+  User? user = FirebaseAuth.instance.currentUser;
+  MyUser? me;
+  final emailtextcontroller = TextEditingController();
+  final passwordcontroller = TextEditingController();
+
+  String? checkFieldEmpty(String? fieldContent) {
+    //<-- add String? as a return type
+    if (fieldContent != ' ') {
+      return 'Ce champ est obligatoire.';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -23,7 +43,7 @@ class _Login1State extends State<Login1> {
       color: (brightness == Brightness.light) ? Colors.transparent : null,
       elevation: 0,
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: <Widget>[
@@ -123,7 +143,8 @@ class _Login1State extends State<Login1> {
                               decoration: const BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
-                              child: TextField(
+                              child: TextFormField(
+                                controller: emailtextcontroller,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Email or Phone number",
@@ -134,7 +155,9 @@ class _Login1State extends State<Login1> {
                             ),
                             Container(
                               padding: const EdgeInsets.all(8.0),
-                              child: TextField(
+                              child: TextFormField(
+                                autofocus: false,
+                                controller: passwordcontroller,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Password",
@@ -177,11 +200,12 @@ class _Login1State extends State<Login1> {
                     FadeAnimation(
                       2,
                       InkWell(
-                        onTap: (() {
-                          var route = MaterialPageRoute(
-                              builder: (BuildContext context) => HomeScreen());
-                          Navigator.of(context).push(route);
-                        }),
+                        onTap: connexion,
+                        // () {
+                        //   var route = MaterialPageRoute(
+                        //       builder: (BuildContext context) => HomeScreen());
+                        //   Navigator.of(context).push(route);
+                        // },
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -231,5 +255,24 @@ class _Login1State extends State<Login1> {
         ),
       ),
     ));
+  }
+
+  connexion() {
+    if (emailtextcontroller.text != " ") {
+      if (passwordcontroller.text != " ") {
+        FirebaseHelper()
+            .handleSignIn(emailtextcontroller.text, passwordcontroller.text)
+            .then((user) {
+          //print('user--$user');
+
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => HomeScreen()));
+        });
+      } else {
+        debugPrint("mot de passe vide");
+      }
+    } else {
+      debugPrint("email vide");
+    }
   }
 }

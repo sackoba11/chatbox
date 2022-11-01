@@ -56,7 +56,7 @@ class AppTheme {
         ),
         scaffoldBackgroundColor: _LightColors.background,
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: AppColors.secondary),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
         ),
         cardColor: _LightColors.card,
         primaryTextTheme: const TextTheme(
@@ -85,7 +85,7 @@ class AppTheme {
         ),
         scaffoldBackgroundColor: _DarkColors.background,
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: AppColors.secondary),
+          style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
         ),
         cardColor: _DarkColors.card,
         primaryTextTheme: const TextTheme(

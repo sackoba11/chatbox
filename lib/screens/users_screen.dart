@@ -14,12 +14,12 @@ class UserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(child: user(10)),
+      body: SingleChildScrollView(child: users(10)),
     );
   }
 }
 
-Widget user(int index) {
+Widget users(int index) {
   final date = Helpers.randomDate();
   List<Widget> page = [];
   for (int i = 0; i < index; i++) {

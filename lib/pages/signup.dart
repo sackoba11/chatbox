@@ -1,6 +1,8 @@
 import 'package:chatbox/animation/FadeAnimation.dart';
+import 'package:chatbox/firebase.dart';
 import 'package:chatbox/pages/login.dart';
 import 'package:chatbox/screens/screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -11,16 +13,21 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final nomUser = TextEditingController();
+  final prenomUser = TextEditingController();
+  final newemailtextcontroller = TextEditingController();
+  final newpasswordcontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     return Scaffold(
         body: Card(
-      margin: EdgeInsets.all(0),
+      margin: const EdgeInsets.all(0),
       color: (brightness == Brightness.light) ? Colors.transparent : null,
       elevation: 0,
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: <Widget>[
@@ -122,6 +129,7 @@ class _SignUpState extends State<SignUp> {
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
                               child: TextField(
+                                controller: nomUser,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Last name",
@@ -135,6 +143,7 @@ class _SignUpState extends State<SignUp> {
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
                               child: TextField(
+                                controller: prenomUser,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "First name",
@@ -148,6 +157,7 @@ class _SignUpState extends State<SignUp> {
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
                               child: TextField(
+                                controller: newemailtextcontroller,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Email or Phone number",
@@ -158,6 +168,7 @@ class _SignUpState extends State<SignUp> {
                             Container(
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
+                                controller: newpasswordcontroller,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Password",
@@ -175,11 +186,14 @@ class _SignUpState extends State<SignUp> {
                     FadeAnimation(
                       2,
                       InkWell(
-                        onTap: (() {
-                          var route = MaterialPageRoute(
-                              builder: (BuildContext context) => HomeScreen());
-                          Navigator.of(context).push(route);
-                        }),
+                        onTap:
+                            // () {
+                            creationUser,
+                        // },
+                        // var route = MaterialPageRoute(
+                        //     builder: (BuildContext context) => HomeScreen());
+                        // Navigator.of(context).push(route);
+                        //}),
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -227,5 +241,29 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     ));
+  }
+
+  creationUser() {
+    if (nomUser.text != " ") {
+      if (prenomUser.text != " ") {
+        if (newemailtextcontroller.text != " ") {
+          if (newpasswordcontroller.text != " ") {
+            FirebaseHelper()
+                .create(newemailtextcontroller.text, newpasswordcontroller.text,
+                    prenomUser.text, nomUser.text)
+                .then((value) => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (BuildContext context) => HomeScreen())));
+          } else {
+            debugPrint("saisissez votre mot de passe!");
+          }
+        } else {
+          debugPrint("saisissez votre email!");
+        }
+      } else {
+        debugPrint("saisissez votre prenom!");
+      }
+    } else {
+      debugPrint("saisissez votre nom!");
+    }
   }
 }
