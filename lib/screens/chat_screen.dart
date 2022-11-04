@@ -1,17 +1,47 @@
-import 'package:chatbox/models/models.dart';
+import 'dart:io';
+import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/user_model.dart';
+import 'package:chatbox/pages/ChatBubble.dart';
 import 'package:chatbox/theme.dart';
 import 'package:chatbox/widgets/glowinf_action_button.dart';
 import 'package:chatbox/widgets/widgets.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:chatbox/models/customimage.dart';
+import 'package:chatbox/models/message.dart';
 
-class ChatSceen extends StatelessWidget {
-  static Route route(MessageData data) =>
-      MaterialPageRoute(builder: (context) => ChatSceen(messageData: data));
+class ChatSceen extends StatefulWidget {
+  static Route route(MyUser partenaire) => MaterialPageRoute(
+      builder: (context) => ChatSceen(
+            partenaire: partenaire,
+          ));
+  final MyUser partenaire;
+  const ChatSceen({
+    super.key,
+    required this.partenaire,
+  });
 
-  const ChatSceen({super.key, required this.messageData});
+  @override
+  State<ChatSceen> createState() => _ChatSceenState();
+}
 
-  final MessageData messageData;
+class _ChatSceenState extends State<ChatSceen> {
+  late MyUser me;
+  @override
+  void initState() {
+    super.initState();
+    String uid = FirebaseHelper().auth.currentUser!.uid;
+    FirebaseHelper().getUser(uid).then((user) {
+      setState(() {
+        me = user;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +61,7 @@ class ChatSceen extends StatelessWidget {
               icon: CupertinoIcons.back),
         ),
         title: _AppBarTitle(
-          messageData: messageData,
+          partenaire: widget.partenaire,
         ),
         actions: [
           Padding(
@@ -56,135 +86,36 @@ class ChatSceen extends StatelessWidget {
         toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
         titleTextStyle: Theme.of(context).textTheme.headline6,
       ),
-      body: Column(
-        children: const [
-          Expanded(child: _DemoMessageList()),
-          _ActionBar(),
-        ],
-      ),
-    );
-  }
-}
-
-class _DemoMessageList extends StatelessWidget {
-  const _DemoMessageList();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: ListView(
-        children: const [
-          _DataLabel(label: "Yesterday"),
-          _MessageTitle(
-            message: "Hi,Lucy How's your day going ?",
-            messageDate: "12:01 PM",
-          ),
-          _MessageOwnTitle(
-              message: "You know how it goes... ", messageDate: "12:02 PM"),
-          _MessageTitle(
-              message: "Do you want Starbucks?", messageDate: "12:02 PM"),
-          _MessageOwnTitle(
-              message: "would be awesome!", messageDate: "12:03 Pm"),
-          _MessageTitle(message: "Coming up!", messageDate: "12:03 PM"),
-          _MessageOwnTitle(message: "YAY!!!!", messageDate: "12:03 Pm")
-        ],
-      ),
-    );
-  }
-}
-
-class _MessageTitle extends StatelessWidget {
-  const _MessageTitle(
-      {super.key, required this.message, required this.messageDate});
-
-  final String message;
-  final String messageDate;
-
-  static const _borderRadius = 26.0;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
+      body: InkWell(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(_borderRadius),
-                    topRight: Radius.circular(_borderRadius),
-                    bottomRight: Radius.circular(_borderRadius),
-                  )),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                child: Text(message),
-              ),
+            Flexible(
+                child: (me != null)
+                    ? FirebaseAnimatedList(
+                        query: FirebaseHelper.entryMessage.child(
+                            FirebaseHelper()
+                                .getMessageRef(me.uid, widget.partenaire.uid)),
+                        sort: (a, b) => b.key!.compareTo(a.key!),
+                        reverse: true,
+                        itemBuilder: (BuildContext ctx, DataSnapshot snap,
+                            Animation<double> animation, int index) {
+                          Message msg = Message(snap);
+                          return ChatBubble(
+                              partenaire: widget.partenaire,
+                              message: msg,
+                              animation: animation);
+                          // ListTile(title: Text(msg.text!));
+                        })
+                    : Center(
+                        child: Text("Chargement..."),
+                      )),
+            _ActionBar(
+              partenaire: widget.partenaire,
+              me: me,
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(messageDate,
-                  style: const TextStyle(
-                      color: AppColors.textFaded,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold)),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MessageOwnTitle extends StatelessWidget {
-  const _MessageOwnTitle({required this.message, required this.messageDate});
-
-  final String message;
-  final String messageDate;
-
-  static const _borderRadius = 26.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(_borderRadius),
-                    bottomRight: Radius.circular(_borderRadius),
-                    bottomLeft: Radius.circular(_borderRadius)),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-                child: Text(
-                  message,
-                  style: const TextStyle(color: AppColors.textLigth),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                messageDate,
-                style: const TextStyle(
-                    color: AppColors.textFaded,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold),
-              ),
+            const SizedBox(
+              height: 10,
             )
           ],
         ),
@@ -222,17 +153,24 @@ class _DataLabel extends StatelessWidget {
   }
 }
 
-class _AppBarTitle extends StatelessWidget {
-  const _AppBarTitle({required this.messageData});
+class _AppBarTitle extends StatefulWidget {
+  const _AppBarTitle({required this.partenaire});
 
-  final MessageData messageData;
+  final MyUser partenaire;
 
+  @override
+  State<_AppBarTitle> createState() => _AppBarTitleState();
+}
+
+class _AppBarTitleState extends State<_AppBarTitle> {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Avatar.small(
-          url: messageData.profilePicture,
+        CustomImage(
+          imageUrl: widget.partenaire.imageUrl,
+          initiales: widget.partenaire.initiales,
+          radius: 15,
         ),
         const SizedBox(
           width: 16,
@@ -243,7 +181,7 @@ class _AppBarTitle extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              messageData.senderName,
+              "${widget.partenaire.nom} ${widget.partenaire.prenoms}",
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 16),
             ),
@@ -251,7 +189,7 @@ class _AppBarTitle extends StatelessWidget {
               height: 2,
             ),
             const Text(
-              "Online now",
+              "En ligne..",
               style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
@@ -264,53 +202,124 @@ class _AppBarTitle extends StatelessWidget {
   }
 }
 
-class _ActionBar extends StatelessWidget {
-  const _ActionBar();
+class _ActionBar extends StatefulWidget {
+  final MyUser partenaire;
+  final MyUser me;
+  const _ActionBar({required this.partenaire, required this.me});
+
+  @override
+  State<_ActionBar> createState() => _ActionBarState();
+}
+
+class _ActionBarState extends State<_ActionBar> {
+  final TextEditingController _controllerSms = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        bottom: true,
-        top: false,
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  border: Border(
-                      right: BorderSide(
-                width: 2,
-                color: Theme.of(context).dividerColor,
-              ))),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Icon(CupertinoIcons.camera_fill),
-              ),
-            ),
-            const Expanded(
-                child: Padding(
-              padding: EdgeInsets.only(left: 16),
-              child: TextField(
-                style: TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Type Sommethings...',
-                  border: InputBorder.none,
+      bottom: true,
+      top: false,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.all(0.0),
+                onPressed: () => _takeAPic(ImageSource.camera),
+                icon: const Icon(
+                  CupertinoIcons.camera_fill,
+                  size: 25,
                 ),
               ),
-            )),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 12,
-                right: 24,
+              Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        right: BorderSide(
+                  width: 1,
+                  color: Theme.of(context).dividerColor,
+                ))),
+                child: IconButton(
+                    padding: const EdgeInsets.all(0.0),
+                    onPressed: () => _takeAPic(ImageSource.gallery),
+                    icon: const Icon(
+                      CupertinoIcons.photo_fill,
+                      size: 25,
+                    )),
               ),
-              child: GlowingActionButton(
-                color: AppColors.accent,
-                icon: Icons.send_rounded,
-                onPressed: (() {
-                  print("you send a message");
-                }),
-              ),
-            )
-          ],
-        ));
+              Expanded(
+                  child: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: TextField(
+                  controller: _controllerSms,
+                  style: const TextStyle(fontSize: 14),
+                  maxLines: null,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Saisissez votre message...',
+                    border: InputBorder.none,
+                  ),
+                ),
+              )),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 12,
+                  right: 24,
+                ),
+                child: GlowingActionButton(
+                  color: AppColors.secondary,
+                  icon: Icons.send_sharp,
+                  size: 45,
+                  onPressed: (() {
+                    _sendButtonPressed();
+                  }),
+                ),
+              )
+            ],
+          ),
+          //emojiSelect(),
+        ],
+      ),
+    );
+  }
+
+  Widget emojiSelect() {
+    return EmojiPicker(
+      config: const Config(
+        columns: 7,
+      ),
+      onEmojiSelected: ((category, emoji) {
+        print("emoji");
+      }),
+    );
+  }
+
+  _sendButtonPressed() {
+    if (_controllerSms.text.isNotEmpty && _controllerSms.text != "") {
+      String text = _controllerSms.text;
+      // 1=> envoyer le texte sur firebase
+      FirebaseHelper().sendMessage(widget.me, widget.partenaire, text, null);
+      //2=> effacer le contenu du champ de saisie
+      _controllerSms.clear();
+      //3=> fermer ce champ de texte
+      FocusScope.of(context).requestFocus(FocusNode());
+      //4=>afficher le toast
+    } else {
+      // aucune saisie effectuée
+    }
+  }
+
+  Future<void> _takeAPic(ImageSource source) async {
+    final XFile? picked = await ImagePicker()
+        .pickImage(source: source, maxHeight: 1000, maxWidth: 1000);
+    if (picked != null) {
+      File file = File(picked.path);
+      String date = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference ref = FirebaseHelper.entrySmS.child(widget.me.uid).child(date);
+      FirebaseHelper.savePic(file, ref).then((imageUrl) {
+        FirebaseHelper()
+            .sendMessage(widget.me, widget.partenaire, null, imageUrl);
+      });
+    }
   }
 }

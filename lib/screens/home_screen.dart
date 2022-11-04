@@ -14,22 +14,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  Widget build(BuildContext context) {
+    return HomeScreens();
+  }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreens extends StatefulWidget {
+  const HomeScreens({super.key});
+
+  @override
+  State<HomeScreens> createState() => _HomeScreensState();
+}
+
+class _HomeScreensState extends State<HomeScreens> {
   final ValueNotifier<int> pageIndex = ValueNotifier(0);
   final ValueNotifier<String> title = ValueNotifier("Messages");
 
   final pages = const [
-    MessagesPage(),
+    MessageController(),
     NotificationPage(),
     CallsPAge(),
-    ContactPage()
+    ContactController()
   ];
 
   final pageTitles = ["Messages", "Notifications", "calls", "Contacts"];

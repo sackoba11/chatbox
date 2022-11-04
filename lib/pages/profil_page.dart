@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chatbox/firebase.dart';
 import 'package:chatbox/models/customimage.dart';
 import 'package:chatbox/models/user_model.dart';
+import 'package:chatbox/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +17,10 @@ class ProfilController extends StatefulWidget {
 
 class _ProfilControllerState extends State<ProfilController> {
   MyUser? me;
-  TextEditingController _prenoms = TextEditingController();
-  TextEditingController _noms = TextEditingController();
+  final TextEditingController _prenoms = TextEditingController();
+  final TextEditingController _noms = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+
   final User? user = FirebaseHelper().auth.currentUser;
   @override
   void initState() {
@@ -42,15 +45,16 @@ class _ProfilControllerState extends State<ProfilController> {
         Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.all(20),
+          margin: const EdgeInsets.only(top: 50, left: 20, right: 20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               //image(),
               CustomImage(
                 imageUrl: me!.imageUrl,
                 initiales: me!.initiales.toUpperCase(),
-                radius: MediaQuery.of(context).size.width / 5,
+                radius: MediaQuery.of(context).size.width / 6,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -59,48 +63,54 @@ class _ProfilControllerState extends State<ProfilController> {
                     onPressed: () {
                       _takeAPic(ImageSource.camera);
                     },
-                    icon: Icon(Icons.camera_enhance),
+                    icon: const Icon(Icons.camera_enhance),
                   ),
                   IconButton(
                     onPressed: () {
                       _takeAPic(ImageSource.gallery);
                     },
-                    icon: Icon(Icons.photo_library),
+                    icon: const Icon(Icons.photo_library),
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextField(
                 controller: _prenoms,
                 decoration: InputDecoration(hintText: me!.prenoms),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextField(
                 controller: _noms,
                 decoration: InputDecoration(hintText: me!.nom),
               ),
-              SizedBox(
-                height: 15,
+              const SizedBox(
+                height: 10,
+              ),
+              TextField(
+                controller: _email,
+                decoration: InputDecoration(hintText: user!.email),
+              ),
+              const SizedBox(
+                height: 250,
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0XFFEA5863),
-                ),
+                    backgroundColor: AppColors.secondary),
                 onPressed: upDateUser,
-                child: Text("Sauvegarder"),
+                child: const Text("Sauvegarder"),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               TextButton(
                   onPressed: logOut,
-                  child: Text(
+                  child: const Text(
                     "Se Déconnecter",
-                    style: TextStyle(color: Color(0XFF000000)),
+                    style: TextStyle(color: AppColors.secondary),
                   )),
             ],
           ),
@@ -110,27 +120,27 @@ class _ProfilControllerState extends State<ProfilController> {
   }
 
   Future<void> logOut() async {
-    Text title = Text("Se Déconnecter");
-    Text content = Text("Etes vous sur de vouloir vous déconnecter ?");
+    Text title = const Text("Se Déconnecter");
+    Text content = const Text("Etes vous sur de vouloir vous déconnecter ?");
     ElevatedButton noBtn = ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0XFFEA5863),
+        backgroundColor: AppColors.secondary,
       ),
       onPressed: () {
         Navigator.of(context).pop();
       },
-      child: Text("Non"),
+      child: const Text("Non"),
     );
     ElevatedButton yesBtn = ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0XFFEA5863),
+        backgroundColor: AppColors.secondary,
       ),
       onPressed: () {
         FirebaseHelper()
             .handleLogOut()
             .then((bool) => {Navigator.of(context).pop()});
       },
-      child: Text("Oui"),
+      child: const Text("Oui"),
     );
     return showDialog(
         context: context,
@@ -183,32 +193,32 @@ class _ProfilControllerState extends State<ProfilController> {
       });
     }
   }
-
-  image() {
-    var images;
-    /*  FirebaseHelper().getUser(user!.uid).then((me) {
-      setState(() {
-        this.me = me; */
-
-    if (me!.imageUrl != null) {
-      return Container(
-        child: CircleAvatar(
-          radius: 25,
-          child: Image(image: NetworkImage(me!.imageUrl!)),
-        ),
-        //Avatar.medium(url: me.imageUrl),
-      );
-    } else {
-      return CircleAvatar(
-        radius: 25,
-        child: Text(
-          me!.initiales,
-          style: TextStyle(color: Colors.black),
-        ),
-      );
-    }
-  }
 }
+//   image() {
+//     var images;
+//     /*  FirebaseHelper().getUser(user!.uid).then((me) {
+//       setState(() {
+//         this.me = me; */
+
+//     if (me!.imageUrl != null) {
+//       return Container(
+//         child: CircleAvatar(
+//           radius: 25,
+//           child: Image(image: NetworkImage(me!.imageUrl!)),
+//         ),
+//         //Avatar.medium(url: me.imageUrl),
+//       );
+//     } else {
+//       return CircleAvatar(
+//         radius: 25,
+//         child: Text(
+//           me!.initiales,
+//           //style: const TextStyle(color: Colors.black),
+//         ),
+//       );
+//     }
+//   }
+ 
 
 
 

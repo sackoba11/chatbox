@@ -32,7 +32,7 @@ class _SignUpState extends State<SignUp> {
           child: Column(
             children: <Widget>[
               Container(
-                height: 390,
+                height: MediaQuery.of(context).size.height / 2, //390,
                 decoration: const BoxDecoration(
                     image: DecorationImage(
                         image: AssetImage('images/images/background.png'),
@@ -215,7 +215,7 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 8,
                     ),
                     FadeAnimation(
                       2.5,

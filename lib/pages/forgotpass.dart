@@ -26,7 +26,7 @@ class _ForgotPassState extends State<ForgotPass> {
           child: Column(
             children: <Widget>[
               Container(
-                height: 400,
+                height: MediaQuery.of(context).size.height / 2,
                 decoration: const BoxDecoration(
                     image: DecorationImage(
                         image: AssetImage('images/images/background.png'),
@@ -97,7 +97,7 @@ class _ForgotPassState extends State<ForgotPass> {
                 ),
               ),
               const SizedBox(
-                height: 70,
+                height: 60,
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
