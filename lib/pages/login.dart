@@ -257,6 +257,14 @@ class _Login1State extends State<Login1> {
     ));
   }
 
+  _getUser() {
+    FirebaseHelper().getUser(user!.uid).then((me) {
+      setState(() {
+        this.me = me;
+      });
+    });
+  }
+
   connexion() {
     if (emailtextcontroller.text != " ") {
       if (passwordcontroller.text != " ") {

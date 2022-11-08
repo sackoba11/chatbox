@@ -5,9 +5,11 @@ import 'package:firebase_database/firebase_database.dart'
 import 'package:firebase_storage/firebase_storage.dart'
     show FirebaseStorage, Reference, TaskSnapshot, UploadTask;
 import 'package:chatbox/models/user_model.dart' show MyUser;
+import 'package:google_sign_in/google_sign_in.dart';
 
 class FirebaseHelper {
   final auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   //Authentification d'un user
   Future<User?> handleSignIn(String mail, String mdp) async {
@@ -31,6 +33,44 @@ class FirebaseHelper {
     String uid = user!.uid;
     Map<String, String> map = {"prenoms": prenoms, "nom": nom, "uid": uid};
     addUser(uid, map);
+    return user;
+  }
+
+  Future<bool> resetpassword(String email) async {
+    try {
+      await auth.sendPasswordResetEmail(email: email);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(
+  //   scopes: [
+  //     'email',
+  //     'https://www.googleapis.com/auth/contacts.readonly',
+  //   ],
+  // );
+
+  Future<void> SignInGoole() async {
+    try {
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> handleSignOut() => _googleSignIn.disconnect();
+
+  Future<OAuthCredential> gSignin() async {
+    GoogleSignInAccount? googleSigninAccount = await _googleSignIn.signIn();
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSigninAccount!.authentication;
+
+    OAuthCredential user = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+    print("User is: ${user.providerId}");
     return user;
   }
 

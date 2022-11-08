@@ -19,12 +19,14 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HomeScreens();
+    return const HomeScreens();
   }
 }
 
 class HomeScreens extends StatefulWidget {
-  const HomeScreens({super.key});
+  const HomeScreens({
+    super.key,
+  });
 
   @override
   State<HomeScreens> createState() => _HomeScreensState();

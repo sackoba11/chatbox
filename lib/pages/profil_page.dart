@@ -12,26 +12,27 @@ class ProfilController extends StatefulWidget {
   const ProfilController({Key? key}) : super(key: key);
 
   @override
-  _ProfilControllerState createState() => _ProfilControllerState();
+  State<ProfilController> createState() => _ProfilControllerState();
 }
 
 class _ProfilControllerState extends State<ProfilController> {
-  MyUser? me;
   final TextEditingController _prenoms = TextEditingController();
   final TextEditingController _noms = TextEditingController();
   final TextEditingController _email = TextEditingController();
 
   final User? user = FirebaseHelper().auth.currentUser;
+  MyUser? me; //FirebaseHelper().getUser(user!.uid);
+
   @override
   void initState() {
+    FirebaseHelper().getUser(user!.uid).then((me) {
+      setState(() {
+        this.me = me;
+      });
+    });
     super.initState();
     _getUser();
   }
-  /*  @override
-  void dispose() {
-    _getUser();
-    super.dispose();
-  } */
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +51,6 @@ class _ProfilControllerState extends State<ProfilController> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              //image(),
               CustomImage(
                 imageUrl: me!.imageUrl,
                 initiales: me!.initiales.toUpperCase(),

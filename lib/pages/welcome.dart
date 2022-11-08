@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/login.dart';
-import 'package:chatbox/pages/profil_page.dart';
 import 'package:chatbox/screens/home_screen.dart';
 import 'package:chatbox/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class Welcome extends StatefulWidget {
@@ -19,12 +16,11 @@ class Welcome extends StatefulWidget {
 class _WelcomeState extends State<Welcome> {
   final User? user = FirebaseAuth.instance.currentUser;
   late MyUser me;
-  static final entryPoint = FirebaseDatabase.instance.ref();
-  static final userEntry = entryPoint.child("users");
 
   @override
   void initState() {
     super.initState();
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         print("utilisateur est non connecté !");
@@ -45,16 +41,30 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-        body: Center(
-      child: Text(
-        "Chargement en cours....!",
-        style: TextStyle(
-          fontSize: 20.0,
-          color: AppColors.secondary,
-          fontWeight: FontWeight.bold,
+    return Scaffold(
+      body: Center(
+        child: //loading(context)
+            Text(
+          "Chargement en cours....!",
+          style: TextStyle(
+            fontSize: 20.0,
+            color: AppColors.secondary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    ));
+    );
   }
+
+  loading(context) => showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => const Center(
+            child: SizedBox(
+              width: 30,
+              height: 30,
+              child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+            ),
+          ));
 }

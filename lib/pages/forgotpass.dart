@@ -1,6 +1,11 @@
 import 'package:chatbox/animation/FadeAnimation.dart';
+import 'package:chatbox/firebase.dart';
 import 'package:chatbox/pages/signup.dart';
 import 'package:chatbox/screens/screens.dart';
+import 'package:chatbox/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPass extends StatefulWidget {
@@ -11,6 +16,8 @@ class ForgotPass extends StatefulWidget {
 }
 
 class _ForgotPassState extends State<ForgotPass> {
+  final auth = FirebaseAuth.instance;
+  final TextEditingController email = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
@@ -82,7 +89,7 @@ class _ForgotPassState extends State<ForgotPass> {
                             margin: const EdgeInsets.only(top: 50),
                             child: Center(
                               child: Text(
-                                "Find your password",
+                                "Reset your password",
                                 style: TextStyle(
                                     color: (brightness == Brightness.light)
                                         ? Colors.white
@@ -126,6 +133,7 @@ class _ForgotPassState extends State<ForgotPass> {
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
                               child: TextField(
+                                controller: email,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: "Email or Phone number",
@@ -146,11 +154,25 @@ class _ForgotPassState extends State<ForgotPass> {
                     FadeAnimation(
                       1.8,
                       InkWell(
-                        onTap: (() {
-                          var route = MaterialPageRoute(
-                              builder: (BuildContext context) => HomeScreen());
-                          Navigator.of(context).push(route);
-                        }),
+                        onTap: () async {
+                          bool send =
+                              await FirebaseHelper().resetpassword(email.text);
+                          if (send) {
+                            String msg =
+                                " Accedez à votre email pour réinitialiser votre mot de passe";
+                            // ignore: use_build_context_synchronously
+                            Navigator.of(context).pop();
+                            setState(() {
+                              confirm();
+                              print(msg);
+                            });
+                          } else {
+                            avertissement();
+                          }
+                          // var route = MaterialPageRoute(
+                          //     builder: (BuildContext context) => HomeScreen());
+                          // Navigator.of(context).push(route);
+                        },
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -162,7 +184,7 @@ class _ForgotPassState extends State<ForgotPass> {
                           child: Center(
                             //tranformer ce login1 en bouton
                             child: Text(
-                              "Submit",
+                              "Send",
                               style: TextStyle(
                                   color: (brightness == Brightness.light)
                                       ? Colors.white
@@ -200,5 +222,60 @@ class _ForgotPassState extends State<ForgotPass> {
         ),
       ),
     ));
+  }
+
+  Future<void> confirm() async {
+    Text content = const Text(
+        "Veuillez consulter votre compte mail pour confirmer le nouveau mot de passe !!. Vérifiez le spam également!!!");
+    ElevatedButton ok = ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.secondary,
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      child: const Text("OK"),
+    );
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return (Theme.of(context).platform == TargetPlatform.iOS)
+              ? CupertinoAlertDialog(
+                  content: content,
+                  actions: <Widget>[ok],
+                )
+              : AlertDialog(
+                  content: content,
+                  actions: <Widget>[ok],
+                );
+        });
+  }
+
+  Future<void> avertissement() async {
+    Text content = const Text("Echec, Veuillez vérifier votre email!!!");
+    ElevatedButton ok = ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.secondary,
+      ),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+      child: const Text("OK"),
+    );
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return (Theme.of(context).platform == TargetPlatform.iOS)
+              ? CupertinoAlertDialog(
+                  content: content,
+                  actions: <Widget>[ok],
+                )
+              : AlertDialog(
+                  content: content,
+                  actions: <Widget>[ok],
+                );
+        });
   }
 }

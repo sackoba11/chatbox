@@ -1,9 +1,11 @@
 import 'package:chatbox/animation/FadeAnimation.dart';
 import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/login.dart';
 import 'package:chatbox/screens/screens.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -32,7 +34,7 @@ class _SignUpState extends State<SignUp> {
           child: Column(
             children: <Widget>[
               Container(
-                height: MediaQuery.of(context).size.height / 2, //390,
+                height: MediaQuery.of(context).size.height / 2.5, //390,
                 decoration: const BoxDecoration(
                     image: DecorationImage(
                         image: AssetImage('images/images/background.png'),
@@ -85,7 +87,7 @@ class _SignUpState extends State<SignUp> {
                       child: FadeAnimation(
                           1.6,
                           Container(
-                            margin: const EdgeInsets.only(top: 50),
+                            margin: const EdgeInsets.only(top: 115),
                             child: Center(
                               child: Text(
                                 "Create Account",
@@ -181,19 +183,12 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     FadeAnimation(
                       2,
                       InkWell(
-                        onTap:
-                            // () {
-                            creationUser,
-                        // },
-                        // var route = MaterialPageRoute(
-                        //     builder: (BuildContext context) => HomeScreen());
-                        // Navigator.of(context).push(route);
-                        //}),
+                        onTap: creationUser,
                         child: Container(
                           height: 50,
                           decoration: BoxDecoration(
@@ -203,7 +198,6 @@ class _SignUpState extends State<SignUp> {
                                 Color.fromRGBO(143, 148, 251, .6),
                               ])),
                           child: const Center(
-                            //tranformer ce login1 en bouton
                             child: Text(
                               "Create Account",
                               style: TextStyle(
@@ -212,6 +206,57 @@ class _SignUpState extends State<SignUp> {
                             ),
                           ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.all(5),
+                        child: const Text(
+                          "OR",
+                          style: TextStyle(
+                              color: Color.fromRGBO(143, 148, 251, 1)),
+                        )),
+                    FadeAnimation(
+                      2,
+                      Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            gradient: const LinearGradient(colors: [
+                              Color.fromRGBO(143, 148, 251, 1),
+                              Color.fromRGBO(143, 148, 251, .6),
+                            ])),
+                        child: MaterialButton(
+                            elevation: 10,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 30.0,
+                                  width: 30.0,
+                                  decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                        image: AssetImage('images/goole.png'),
+                                        fit: BoxFit.cover),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Text("Sign in with Google",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                            // by onpressed we call the function signup function
+                            onPressed: () {
+                              FirebaseHelper().gSignin();
+                              //signup;
+                            }),
                       ),
                     ),
                     const SizedBox(
@@ -241,6 +286,34 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     ));
+  }
+
+  // function to implement the google signin
+
+// creating firebase instance
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> signup(BuildContext context) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleSignInAccount =
+        await googleSignIn.signIn();
+    if (googleSignInAccount != null) {
+      final GoogleSignInAuthentication googleSignInAuthentication =
+          await googleSignInAccount.authentication;
+      final AuthCredential authCredential = GoogleAuthProvider.credential(
+          idToken: googleSignInAuthentication.idToken,
+          accessToken: googleSignInAuthentication.accessToken);
+
+      // Getting users credential
+      UserCredential result = await auth.signInWithCredential(authCredential);
+      User? user = result.user;
+
+      if (result != null) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      } // if result not null we simply call the MaterialpageRoute,
+      // for go to the HomePage screen
+    }
   }
 
   creationUser() {
