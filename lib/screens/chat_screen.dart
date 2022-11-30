@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chatbox/firebase.dart';
 import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/ChatBubble.dart';
+import 'package:chatbox/pages/profile_user.dart';
 import 'package:chatbox/theme.dart';
 import 'package:chatbox/widgets/glowinf_action_button.dart';
 import 'package:chatbox/widgets/widgets.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:chatbox/models/customimage.dart';
@@ -31,7 +33,7 @@ class ChatSceen extends StatefulWidget {
 }
 
 class _ChatSceenState extends State<ChatSceen> {
-  late MyUser me;
+  MyUser? me;
   @override
   void initState() {
     super.initState();
@@ -45,113 +47,128 @@ class _ChatSceenState extends State<ChatSceen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: Theme.of(context).iconTheme,
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(
-              onTap: (() {
-                Navigator.of(context).pop();
-              }),
-              icon: CupertinoIcons.back),
-        ),
-        title: _AppBarTitle(
-          partenaire: widget.partenaire,
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Center(
-              child: IconBorder(
-                icon: CupertinoIcons.video_camera_solid,
-                onTap: () {},
+    return (me == null)
+        ? const Scaffold(
+            body: Center(
+              child: GFLoader(type: GFLoaderType.ios),
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              iconTheme: Theme.of(context).iconTheme,
+              centerTitle: false,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leadingWidth: 54,
+              leading: Align(
+                alignment: Alignment.centerRight,
+                child: IconBackground(
+                    onTap: (() {
+                      Navigator.of(context).pop();
+                    }),
+                    icon: CupertinoIcons.back),
+              ),
+              title: InkWell(
+                child: _AppBarTitle(
+                  partenaire: widget.partenaire,
+                ),
+                onTap: () {
+                  var route = MaterialPageRoute(
+                      builder: (BuildContext context) => ProfileUser(
+                            partenaire: widget.partenaire,
+                          ));
+                  Navigator.of(context).push(route);
+                },
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Center(
+                    child: IconBorder(
+                      icon: CupertinoIcons.video_camera_solid,
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Center(
+                    child: IconBorder(
+                      icon: CupertinoIcons.phone_solid,
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+              ],
+              toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
+              titleTextStyle: Theme.of(context).textTheme.headline6,
+            ),
+            body: InkWell(
+              onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+              child: Column(
+                children: [
+                  Flexible(
+                      child: (me != null)
+                          ? FirebaseAnimatedList(
+                              query: FirebaseHelper.entryMessage.child(
+                                  FirebaseHelper().getMessageRef(
+                                      me!.uid, widget.partenaire.uid)),
+                              sort: (a, b) => b.key!.compareTo(a.key!),
+                              reverse: true,
+                              itemBuilder: (BuildContext ctx, DataSnapshot snap,
+                                  Animation<double> animation, int index) {
+                                Message msg = Message(snap);
+                                return ChatBubble(
+                                    partenaire: widget.partenaire,
+                                    message: msg,
+                                    animation: animation);
+                                // ListTile(title: Text(msg.text!));
+                              })
+                          : const Center(
+                              child: GFLoader(type: GFLoaderType.ios),
+                            )),
+                  _ActionBar(
+                    partenaire: widget.partenaire,
+                    me: me,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  )
+                ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Center(
-              child: IconBorder(
-                icon: CupertinoIcons.phone_solid,
-                onTap: () {},
-              ),
-            ),
-          ),
-        ],
-        toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
-        titleTextStyle: Theme.of(context).textTheme.headline6,
-      ),
-      body: InkWell(
-        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-        child: Column(
-          children: [
-            Flexible(
-                child: (me != null)
-                    ? FirebaseAnimatedList(
-                        query: FirebaseHelper.entryMessage.child(
-                            FirebaseHelper()
-                                .getMessageRef(me.uid, widget.partenaire.uid)),
-                        sort: (a, b) => b.key!.compareTo(a.key!),
-                        reverse: true,
-                        itemBuilder: (BuildContext ctx, DataSnapshot snap,
-                            Animation<double> animation, int index) {
-                          Message msg = Message(snap);
-                          return ChatBubble(
-                              partenaire: widget.partenaire,
-                              message: msg,
-                              animation: animation);
-                          // ListTile(title: Text(msg.text!));
-                        })
-                    : Center(
-                        child: Text("Chargement..."),
-                      )),
-            _ActionBar(
-              partenaire: widget.partenaire,
-              me: me,
-            ),
-            const SizedBox(
-              height: 10,
-            )
-          ],
-        ),
-      ),
-    );
+          );
   }
 }
 
-class _DataLabel extends StatelessWidget {
-  const _DataLabel({required this.label});
+// class _DataLabel extends StatelessWidget {
+//   const _DataLabel({required this.label});
 
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32),
-        child: Container(
-          decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            child: Text(
-              label,
-              style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textFaded),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   final String label;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: Padding(
+//         padding: const EdgeInsets.symmetric(vertical: 32),
+//         child: Container(
+//           decoration: BoxDecoration(
+//               color: Theme.of(context).cardColor,
+//               borderRadius: BorderRadius.circular(12)),
+//           child: Padding(
+//             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+//             child: Text(
+//               label,
+//               style: const TextStyle(
+//                   fontSize: 12,
+//                   fontWeight: FontWeight.bold,
+//                   color: AppColors.textFaded),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _AppBarTitle extends StatefulWidget {
   const _AppBarTitle({required this.partenaire});
@@ -181,7 +198,7 @@ class _AppBarTitleState extends State<_AppBarTitle> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "${widget.partenaire.nom} ${widget.partenaire.prenoms}",
+              "${widget.partenaire.nom} ${widget.partenaire.prenom}",
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 16),
             ),
@@ -203,8 +220,8 @@ class _AppBarTitleState extends State<_AppBarTitle> {
 }
 
 class _ActionBar extends StatefulWidget {
-  final MyUser partenaire;
-  final MyUser me;
+  final partenaire;
+  final me;
   const _ActionBar({required this.partenaire, required this.me});
 
   @override
@@ -270,9 +287,14 @@ class _ActionBarState extends State<_ActionBar> {
                   color: AppColors.secondary,
                   icon: Icons.send_sharp,
                   size: 45,
-                  onPressed: (() {
+                  onPressed: () {
                     _sendButtonPressed();
-                  }),
+                    setState(() {
+                      ChatSceen(
+                        partenaire: widget.partenaire,
+                      );
+                    });
+                  },
                 ),
               )
             ],

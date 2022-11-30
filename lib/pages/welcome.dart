@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/login.dart';
 import 'package:chatbox/screens/home_screen.dart';
-import 'package:chatbox/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -15,15 +14,14 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   final User? user = FirebaseAuth.instance.currentUser;
-  late MyUser me;
 
   @override
   void initState() {
     super.initState();
-
+    setState(() {});
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
-        print("utilisateur est non connecté !");
+        print("utilisateur est déconnecté !");
         Timer(
             const Duration(seconds: 1),
             () => Navigator.push(context,
@@ -34,24 +32,16 @@ class _WelcomeState extends State<Welcome> {
         Timer(
             const Duration(seconds: 1),
             () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => HomeScreen())));
+                MaterialPageRoute(builder: (context) => HomeScreens())));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
-        child: //loading(context)
-            Text(
-          "Chargement en cours....!",
-          style: TextStyle(
-            fontSize: 20.0,
-            color: AppColors.secondary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        child: GFLoader(type: GFLoaderType.ios),
       ),
     );
   }

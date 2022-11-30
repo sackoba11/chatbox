@@ -1,15 +1,17 @@
-import 'dart:io' show File;
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart'
-    show DatabaseEvent, FirebaseDatabase;
-import 'package:firebase_storage/firebase_storage.dart'
-    show FirebaseStorage, Reference, TaskSnapshot, UploadTask;
-import 'package:chatbox/models/user_model.dart' show MyUser;
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:chatbox/models/user_model.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 class FirebaseHelper {
   final auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  FirebaseFirestore bd = FirebaseFirestore.instance;
 
   //Authentification d'un user
   Future<User?> handleSignIn(String mail, String mdp) async {
@@ -26,14 +28,40 @@ class FirebaseHelper {
 
   //creation  d'un user
   Future<User> create(
-      String mail, String mdp, String prenoms, String nom) async {
+      String mail, String mdp, String numero, String nom) async {
     final create =
         await auth.createUserWithEmailAndPassword(email: mail, password: mdp);
     final User? user = create.user;
     String uid = user!.uid;
-    Map<String, String> map = {"prenoms": prenoms, "nom": nom, "uid": uid};
+    Map<String, String> map = {"numero": numero, "nom": nom, "uid": uid};
     addUser(uid, map);
     return user;
+  }
+
+  void gSignin() async {
+    GoogleSignInAccount? googleSigninAccount = await _googleSignIn.signIn();
+    GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSigninAccount!.authentication;
+
+    AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken);
+    User? user = (await auth.signInWithCredential(credential)).user;
+
+    // bd.collection("users").doc(user!.uid).set({
+    //   "prenoms": user.displayName,
+    //   "nom": user.displayName,
+    //   "imageUrl": user.photoURL,
+    //   "uid": user.uid,
+    // });
+    String uid = user!.uid;
+    Map<String, String> map = {
+      "uid": uid,
+      "prenoms": user.displayName!,
+      "nom": user.displayName!,
+      "imageUrl": user.photoURL!
+    };
+    addUser(uid, map);
   }
 
   Future<bool> resetpassword(String email) async {
@@ -45,33 +73,16 @@ class FirebaseHelper {
     }
   }
 
-  // final GoogleSignIn _googleSignIn = GoogleSignIn(
-  //   scopes: [
-  //     'email',
-  //     'https://www.googleapis.com/auth/contacts.readonly',
-  //   ],
-  // );
+  final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/contacts.readonly',
+    ],
+  );
 
-  Future<void> SignInGoole() async {
-    try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      print(error);
-    }
-  }
-
-  Future<void> handleSignOut() => _googleSignIn.disconnect();
-
-  Future<OAuthCredential> gSignin() async {
-    GoogleSignInAccount? googleSigninAccount = await _googleSignIn.signIn();
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSigninAccount!.authentication;
-
-    OAuthCredential user = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication.idToken,
-        accessToken: googleSignInAuthentication.accessToken);
-    print("User is: ${user.providerId}");
-    return user;
+  Future<void> signOutFromGoogle() async {
+    await _googleSignIn.signOut();
+    await auth.signOut();
   }
 
   // database
@@ -95,6 +106,29 @@ class FirebaseHelper {
     DatabaseEvent snapshot = (await userEntry.child(uid).once());
     MyUser user = MyUser(snapshot.snapshot);
     return user;
+  }
+
+  File? imageFile;
+  Future getimage() async {
+    ImagePicker _picker = ImagePicker();
+    await _picker.pickImage(source: ImageSource.gallery).then((xFile) {
+      if (xFile != null) {
+        imageFile = File(xFile.path);
+        uploadImage();
+      }
+    });
+  }
+
+  Future uploadImage() async {
+    String filename = Uuid().v1();
+
+    var ref =
+        FirebaseStorage.instance.ref().child('images').child("$filename.jpg");
+
+    var uploadtask = await ref.putFile(imageFile!);
+
+    String imageurl = await uploadtask.ref.getDownloadURL();
+    print(imageurl);
   }
 
   // envoyer sms dans la bd

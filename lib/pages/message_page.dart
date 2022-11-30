@@ -59,7 +59,7 @@ class _MessageControllerState extends State<MessageController> {
                     radius: 20,
                   ),
                   title: Text(
-                      "${conversation.user.nom} ${conversation.user.prenoms}"),
+                      "${conversation.user.nomf} ${conversation.user.prenom}"),
                   subtitle: Text(sub),
                   trailing: Column(
                     children: [
@@ -81,13 +81,10 @@ class _MessageControllerState extends State<MessageController> {
                     ],
                   ),
                   onTap: () async {
-                    Future.delayed(const Duration(milliseconds: 3000),
-                        () async {
-                      await Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (BuildContext ctx) {
-                        return ChatSceen(partenaire: conversation.user);
-                      }));
-                    });
+                    await Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (BuildContext ctx) {
+                      return ChatSceen(partenaire: conversation.user);
+                    }));
                   },
                 ),
                 Padding(

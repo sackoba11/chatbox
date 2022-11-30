@@ -1,6 +1,7 @@
-import 'package:chatbox/firebase.dart';
+import 'dart:io';
 import 'package:chatbox/models/customimage.dart';
 import 'package:chatbox/models/user_model.dart';
+import 'package:chatbox/pages/addUsers.dart';
 import 'package:chatbox/pages/calls_page.dart';
 import 'package:chatbox/pages/contact_page.dart';
 import 'package:chatbox/pages/message_page.dart';
@@ -13,6 +14,7 @@ import 'package:chatbox/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -50,74 +52,101 @@ class _HomeScreensState extends State<HomeScreens> {
     pageIndex.value = index;
   }
 
-  final User? user = FirebaseAuth.instance.currentUser;
-  late MyUser me;
+  final User user = FirebaseAuth.instance.currentUser!;
+  MyUser? me;
 
-  @override
-  void initState() {
-    super.initState();
-    _getUser();
+  Future<bool> _onWillPop() async {
+    bool value = false;
+    await showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: const Text("Fermeture"),
+            content:
+                const Text(" Êtes vous sûr de vouloir quitter l'application ?"),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: (() {
+                    setState(() {
+                      exit(0);
+                    });
+                  }),
+                  child: const Text("Oui")),
+              TextButton(
+                  onPressed: (() {
+                    Navigator.of(context).pop();
+                  }),
+                  child: const Text("Non"))
+            ],
+          );
+        });
+    return value;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: Theme.of(context).iconTheme,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: ValueListenableBuilder(
-            valueListenable: title,
-            builder: (BuildContext context, String value, _) {
-              return Text(
-                value,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              );
-            }),
-        leadingWidth: 54,
-        leading: Align(
-          alignment: Alignment.centerRight,
-          child: IconBackground(icon: Icons.search, onTap: () {}),
-        ),
-        actions: [
-          GestureDetector(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 25.0),
-              child: CustomImage(
-                imageUrl: me.imageUrl,
-                initiales: me.initiales.toUpperCase(),
-                radius: MediaQuery.of(context).size.width / 17,
+    return (user == null)
+        ? WillPopScope(
+            onWillPop: _onWillPop,
+            child: const Scaffold(
+              body: Center(
+                child: GFLoader(type: GFLoaderType.ios),
               ),
             ),
-            onTap: () {
-              var route = MaterialPageRoute(
-                  builder: (BuildContext context) => const ProfilController());
-              Navigator.of(context).push(route);
-            },
           )
-        ],
-        toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
-        titleTextStyle: Theme.of(context).textTheme.headline6,
-      ),
-      body: ValueListenableBuilder(
-          valueListenable: pageIndex,
-          builder: (BuildContext context, int value, _) {
-            return pages[value];
-          }),
-      bottomNavigationBar: _BottomNavigationBar(
-        onItemSelected: onNavigationItemSelected,
-      ),
-    );
-  }
-
-  _getUser() {
-    FirebaseHelper().getUser(user!.uid).then((me) {
-      setState(() {
-        this.me = me;
-      });
-    });
+        : WillPopScope(
+            onWillPop: _onWillPop,
+            child: Scaffold(
+              appBar: AppBar(
+                iconTheme: Theme.of(context).iconTheme,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                title: ValueListenableBuilder(
+                    valueListenable: title,
+                    builder: (BuildContext context, String value, _) {
+                      return Text(
+                        value,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      );
+                    }),
+                leadingWidth: 54,
+                leading: Align(
+                  alignment: Alignment.centerRight,
+                  child: IconBackground(icon: Icons.search, onTap: () {}),
+                ),
+                actions: [
+                  GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 25.0),
+                      child: CustomImage(
+                        imageUrl: me?.imageUrl,
+                        initiales: me?.initiales.toUpperCase(),
+                        radius: MediaQuery.of(context).size.width / 17,
+                      ),
+                    ),
+                    onTap: () {
+                      var route = MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              const ProfilController());
+                      Navigator.of(context).push(route);
+                    },
+                  )
+                ],
+                toolbarTextStyle: Theme.of(context).textTheme.bodyText2,
+                titleTextStyle: Theme.of(context).textTheme.headline6,
+              ),
+              body: ValueListenableBuilder(
+                  valueListenable: pageIndex,
+                  builder: (BuildContext context, int value, _) {
+                    return pages[value];
+                  }),
+              bottomNavigationBar: _BottomNavigationBar(
+                onItemSelected: onNavigationItemSelected,
+              ),
+            ),
+          );
   }
 }
 
@@ -174,7 +203,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
                       icon: CupertinoIcons.add,
                       onPressed: (() {
                         var route = MaterialPageRoute(
-                            builder: (context) => const SelectContact());
+                            builder: (context) => const Addusers());
 
                         Navigator.of(context).push(route);
                       })),

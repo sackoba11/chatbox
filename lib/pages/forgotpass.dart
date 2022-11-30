@@ -21,6 +21,8 @@ class _ForgotPassState extends State<ForgotPass> {
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final h = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
     return Scaffold(
         body: Card(
       margin: const EdgeInsets.all(0),
@@ -28,8 +30,8 @@ class _ForgotPassState extends State<ForgotPass> {
       color: (brightness == Brightness.light) ? Colors.transparent : null,
       child: SingleChildScrollView(
         child: SizedBox(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          width: w,
+          height: h,
           child: Column(
             children: <Widget>[
               Container(
@@ -86,7 +88,7 @@ class _ForgotPassState extends State<ForgotPass> {
                       child: FadeAnimation(
                           1.6,
                           Container(
-                            margin: const EdgeInsets.only(top: 50),
+                            margin: const EdgeInsets.only(top: 90),
                             child: Center(
                               child: Text(
                                 "Reset your password",
@@ -103,8 +105,8 @@ class _ForgotPassState extends State<ForgotPass> {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 60,
+              SizedBox(
+                height: h / 30,
               ),
               Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -136,7 +138,7 @@ class _ForgotPassState extends State<ForgotPass> {
                                 controller: email,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Email or Phone number",
+                                    hintText: "Email",
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400])),
                               ),
@@ -145,11 +147,8 @@ class _ForgotPassState extends State<ForgotPass> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const SizedBox(
-                      height: 40,
+                    SizedBox(
+                      height: h / 10,
                     ),
                     FadeAnimation(
                       1.8,
@@ -158,20 +157,10 @@ class _ForgotPassState extends State<ForgotPass> {
                           bool send =
                               await FirebaseHelper().resetpassword(email.text);
                           if (send) {
-                            String msg =
-                                " Accedez à votre email pour réinitialiser votre mot de passe";
-                            // ignore: use_build_context_synchronously
-                            Navigator.of(context).pop();
-                            setState(() {
-                              confirm();
-                              print(msg);
-                            });
+                            confirm();
                           } else {
                             avertissement();
                           }
-                          // var route = MaterialPageRoute(
-                          //     builder: (BuildContext context) => HomeScreen());
-                          // Navigator.of(context).push(route);
                         },
                         child: Container(
                           height: 50,
@@ -195,8 +184,8 @@ class _ForgotPassState extends State<ForgotPass> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 70,
+                    SizedBox(
+                      height: h / 10,
                     ),
                     FadeAnimation(
                       2.0,

@@ -16,13 +16,17 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final nomUser = TextEditingController();
-  final prenomUser = TextEditingController();
+  final numero = TextEditingController();
   final newemailtextcontroller = TextEditingController();
   final newpasswordcontroller = TextEditingController();
+
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final h = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
     return Scaffold(
         body: Card(
       margin: const EdgeInsets.all(0),
@@ -126,6 +130,7 @@ class _SignUpState extends State<SignUp> {
                         child: Column(
                           children: <Widget>[
                             Container(
+                              height: h / 13,
                               padding: const EdgeInsets.all(8.0),
                               decoration: const BoxDecoration(
                                   border: Border(
@@ -134,26 +139,28 @@ class _SignUpState extends State<SignUp> {
                                 controller: nomUser,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Last name",
+                                    hintText: "Full name",
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400])),
                               ),
                             ),
                             Container(
+                              height: h / 13,
                               padding: const EdgeInsets.all(8.0),
                               decoration: const BoxDecoration(
                                   border: Border(
                                       bottom: BorderSide(color: Colors.grey))),
                               child: TextField(
-                                controller: prenomUser,
+                                controller: numero,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "First name",
+                                    hintText: "Numéro",
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400])),
                               ),
                             ),
                             Container(
+                              height: h / 13,
                               padding: const EdgeInsets.all(8.0),
                               decoration: const BoxDecoration(
                                   border: Border(
@@ -162,12 +169,13 @@ class _SignUpState extends State<SignUp> {
                                 controller: newemailtextcontroller,
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: "Email or Phone number",
+                                    hintText: "Email",
                                     hintStyle:
                                         TextStyle(color: Colors.grey[400])),
                               ),
                             ),
                             Container(
+                              height: h / 13,
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
                                 controller: newpasswordcontroller,
@@ -182,15 +190,15 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
+                    SizedBox(
+                      height: h / 40,
                     ),
                     FadeAnimation(
                       2,
                       InkWell(
                         onTap: creationUser,
                         child: Container(
-                          height: 50,
+                          height: h / 15,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               gradient: const LinearGradient(colors: [
@@ -208,8 +216,8 @@ class _SignUpState extends State<SignUp> {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 8,
+                    SizedBox(
+                      height: h / 125,
                     ),
                     Container(
                         alignment: Alignment.center,
@@ -219,6 +227,9 @@ class _SignUpState extends State<SignUp> {
                           style: TextStyle(
                               color: Color.fromRGBO(143, 148, 251, 1)),
                         )),
+                    SizedBox(
+                      height: h / 125,
+                    ),
                     FadeAnimation(
                       2,
                       Container(
@@ -255,12 +266,19 @@ class _SignUpState extends State<SignUp> {
                             // by onpressed we call the function signup function
                             onPressed: () {
                               FirebaseHelper().gSignin();
-                              //signup;
+                              if (user != null) {
+                                setState(() {
+                                  var route = MaterialPageRoute(
+                                    builder: (context) => const HomeScreen(),
+                                  );
+                                  Navigator.of(context).push(route);
+                                });
+                              }
                             }),
                       ),
                     ),
-                    const SizedBox(
-                      height: 8,
+                    SizedBox(
+                      height: h / 50,
                     ),
                     FadeAnimation(
                       2.5,
@@ -292,9 +310,9 @@ class _SignUpState extends State<SignUp> {
 
 // creating firebase instance
   final FirebaseAuth auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future<void> signup(BuildContext context) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+  Future<void> signup() async {
     final GoogleSignInAccount? googleSignInAccount =
         await googleSignIn.signIn();
     if (googleSignInAccount != null) {
@@ -305,27 +323,28 @@ class _SignUpState extends State<SignUp> {
           accessToken: googleSignInAuthentication.accessToken);
 
       // Getting users credential
+
       UserCredential result = await auth.signInWithCredential(authCredential);
       User? user = result.user;
 
-      if (result != null) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      } // if result not null we simply call the MaterialpageRoute,
+      // if (result != null) {
+      //   Navigator.pushReplacement(
+      //       context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      // } // if result not null we simply call the MaterialpageRoute,
       // for go to the HomePage screen
     }
   }
 
   creationUser() {
     if (nomUser.text != " ") {
-      if (prenomUser.text != " ") {
+      if (numero.text != " ") {
         if (newemailtextcontroller.text != " ") {
           if (newpasswordcontroller.text != " ") {
             FirebaseHelper()
                 .create(newemailtextcontroller.text, newpasswordcontroller.text,
-                    prenomUser.text, nomUser.text)
+                    numero.text, nomUser.text)
                 .then((value) => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (BuildContext context) => HomeScreen())));
+                    builder: (BuildContext context) => HomeScreens())));
           } else {
             debugPrint("saisissez votre mot de passe!");
           }

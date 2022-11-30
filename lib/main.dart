@@ -1,4 +1,4 @@
-import 'package:chatbox/pages/profil_page.dart';
+import 'package:chatbox/models/user_model.dart';
 import 'package:chatbox/pages/welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -37,6 +37,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final User? user = FirebaseAuth.instance.currentUser;
+  // final User? user = FirebaseHelper().auth.currentUser;
+  MyUser? me;
 
   @override
   void initState() {

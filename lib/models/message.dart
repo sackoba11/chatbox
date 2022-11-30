@@ -17,16 +17,14 @@ class Message {
   }
 }
 
-
-
-/* class Message {
+class Message1 {
   final String idForm;
   final String idTo;
   final String timesTamp;
   final String contnent;
   final int type;
 
-  Message(this.idForm, this.idTo, this.timesTamp, this.contnent, this.type);
+  Message1(this.idForm, this.idTo, this.timesTamp, this.contnent, this.type);
 
   Map<String, dynamic> toHashMap() {
     return {
@@ -36,4 +34,4 @@ class Message {
       'tpe': type
     };
   }
-} */
+}

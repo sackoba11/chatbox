@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatbox/firebase.dart';
+import 'package:chatbox/models/customimage.dart';
 import 'package:chatbox/models/date_helper.dart';
+import 'package:chatbox/pages/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:chatbox/models/message.dart';
 import 'package:chatbox/models/user_model.dart';
@@ -61,41 +64,52 @@ class _ChatBubbleState extends State<ChatBubble> {
         (moi) ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     BoxDecoration? decoration = (moi) ? decoration1 : decoration2;
 
+    Widget test(String? imageUrl, String? text) {
+      if (imageUrl != null && imageUrl.contains("http")) {
+        ImageProvider provider = CachedNetworkImageProvider(imageUrl);
+        return InkWell(
+          child: Image(
+            image: provider,
+            width: 150,
+            height: 150,
+          ),
+          onTap: () {
+            var route = MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    Chatmessage(imageUrl: imageUrl));
+            Navigator.of(context).push(route);
+          },
+        );
+      } else if (text != null) {
+        return Container(
+          decoration: decoration,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 17),
+            ),
+          ),
+        );
+      } else {
+        Container();
+      }
+      return Container();
+    }
+
     return <Widget>[
-      // (moi)
-      //     ? Padding(padding: EdgeInsets.all(5.0))
-      //     : CustomImage(
-      //         //color: Color(0XFFEA5863),
-      //         imageUrl: widget.partenaire.imageUrl,
-      //         initiales: widget.partenaire.initiales,
-      //         radius: 15,
-      //       ),
+      (moi)
+          ? const Padding(padding: EdgeInsets.all(5.0))
+          : CustomImage(
+              imageUrl: widget.partenaire.imageUrl,
+              initiales: widget.partenaire.initiales,
+              radius: 15,
+            ),
       Expanded(
           child: Column(
         crossAxisAlignment: alignment,
         children: <Widget>[
-          Container(
-            decoration: decoration,
-            padding:
-                EdgeInsets.all((widget.message.imageUrl.isNotEmpty) ? 5 : 10),
-            child:
-                /*   (widget.message.imageUrl.isNotEmpty)
-                ? CustomImage(
-                    imageUrl: widget.message.imageUrl,
-                    initiales: null,
-                    radius: null,
-                  )
-                :  */
-                (widget.message.text.isNotEmpty)
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 10),
-                        child: Text(
-                          widget.message.text,
-                        ),
-                      )
-                    : Container(),
-          ),
+          test(widget.message.imageUrl, widget.message.text),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(DateHelper().convert(widget.message.dateString),
